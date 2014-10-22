@@ -7,7 +7,9 @@
 .project
 .springbeans
 .gradle
+*~
 target
 out
 build
 */bin/
+
