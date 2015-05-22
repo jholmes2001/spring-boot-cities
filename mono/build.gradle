@@ -1,0 +1,112 @@
+
+
+buildscript {
+     ext {
+	springBootVersion = '1.1.6.RELEASE'
+	springCloudVersion = '1.1.0.RELEASE'
+	version = '0.0.1-SNAPSHOT'
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+    } 
+
+    repositories {
+        mavenCentral()
+        maven { url "http://repo.spring.io/milestone" }
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.cloudfoundry:cf-gradle-plugin:1.0.3")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.cloudfoundry:cf-gradle-plugin:1.0.3")
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath 'de.obqo.gradle:gradle-lesscss-plugin:1.0-1.3.3'
+
+    }
+}
+
+project.group = 'com.example.cities.monolithic'
+project.version = '0.0.1.SNAPSHOT'
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'cloudfoundry'
+
+jar {
+    baseName = 'cities-monolithic'
+    version = ''
+}
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/milestone" }
+}
+
+dependencies {
+
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+	compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework.cloud:spring-cloud-spring-service-connector:1.1.0.RELEASE")
+    compile("org.springframework.cloud:spring-cloud-cloudfoundry-connector:1.1.0.RELEASE")
+    runtime("org.hsqldb:hsqldb")
+    runtime("mysql:mysql-connector-java:5.1.25")
+
+    testCompile("junit:junit")
+	
+    // Spring
+    compile "org.springframework.hateoas:spring-hateoas:0.16.0.RELEASE"
+    compile "org.springframework.cloud:spring-cloud-spring-service-connector:${springCloudVersion}"
+    compile "org.springframework.cloud:spring-cloud-cloudfoundry-connector:${springCloudVersion}"
+    compile "org.springframework.cloud:spring-cloud-localconfig-connector:${springCloudVersion}"
+
+	
+    // Spring
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.data:spring-data-commons"
+    compile("org.springframework.cloud:spring-cloud-spring-service-connector:${springCloudVersion}")
+
+
+    // Webjars
+    compile 'org.webjars:bootstrap:3.2.0'
+    compile 'org.webjars:angularjs:1.2.23'
+    compile 'org.webjars:angular-ui-bootstrap:0.11.0-2'
+    compile 'org.webjars:angular-ui-router:0.2.11'
+    compile 'org.webjars:angular-ui:0.4.0-3'
+    compile 'org.webjars:angular-ui-bootstrap:0.11.0-2'
+    compile 'org.webjars:angularjs-google-maps:0.6.0'
+    compile 'org.webjars:jquery:2.1.1'
+
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+
+    versionManagement 'io.spring.platform:platform-versions:1.0.2.RELEASE@properties'
+
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}
+
+tasks.cfPush.dependsOn assemble
+
+cloudfoundry {
+    target = "https://api.cf.mycloud.com"
+    space = "development"
+
+    memory = 512
+
+    trustSelfSignedCerts = true
+
+    services {
+        "cities-db" {
+            label = "p-mysql"
+            plan = "100mb-dev"
+        }
+    }
+}
+
+
+
